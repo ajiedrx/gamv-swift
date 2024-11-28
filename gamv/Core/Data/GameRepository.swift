@@ -9,7 +9,11 @@ import Foundation
 
 protocol GameRepositoryProtocol {
     func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, URLError
+        GameListModel, Error
+    >
+    
+    func fetchFavoriteGamesFromLocal() async -> Result<
+        [GameListModel], Error
     >
 }
 
@@ -27,24 +31,30 @@ final class GameRepository: NSObject {
 
 extension GameRepository: GameRepositoryProtocol {
     func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, URLError
+        GameListModel, Error
     > {
         do {
             let gameList = try await remoteDS.getListOfGames(
                 page: page, search: search)
             return .success(gameList.toGameListModel())
-        } catch let error as URLError {
+        } catch let error as Error {
             return .failure(error)
         } catch {
             return .failure(.unknownError(error.localizedDescription))
         }
     }
+    
+    
 }
 
 final class MockGameRepository: GameRepositoryProtocol {
     var isSimulateError = false
+    
+    func fetchFavoriteGamesFromLocal() async -> Result<[GameListModel], Error> {
+        return .success([])
+    }
 
-    func getListOfGames(page: Int, search: String) async -> Result<GameListModel, URLError> {
+    func getListOfGames(page: Int, search: String) async -> Result<GameListModel, Error> {
         if isSimulateError { return .failure(.unknownError("Simulate error")) }
 
         let dummyGameListModel = GameListModel(

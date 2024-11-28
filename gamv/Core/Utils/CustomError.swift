@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum URLError: LocalizedError {
+enum Error: LocalizedError {
 
     case unknownError(String)
     case invalidResponse
@@ -17,7 +17,7 @@ enum URLError: LocalizedError {
         switch self {
         case .invalidResponse: return "Invalid response"
         case .addressUnreachable(let url): return "\(url) is unreachable."
-        default: return "Unknown error"
+        case .unknownError(let message): return "Unknown error \(message)"
         }
     }
 }

@@ -167,7 +167,7 @@ struct LoadingView: View {
 }
 
 struct ErrorView: View {
-    let error: URLError
+    let error: Error
     let retryAction: () -> Void
 
     var body: some View {

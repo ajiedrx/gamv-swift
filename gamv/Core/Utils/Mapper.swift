@@ -131,3 +131,69 @@ private extension StoreResponse {
     return Store(id: self.id, store: self.store?.toGenreModel())
   }
 }
+
+extension FavoriteGameEntity {
+    func toGameListItemModel() -> GameListItemModel {
+        return GameListItemModel(
+            id: self.id,
+            slug: "",
+            name: self.title,
+            released: self.releaseDate, tba: nil,
+            backgroundImage: self.imageUrl,
+            rating: self.rating, ratingTop: nil, ratings: nil, ratingsCount: nil, reviewsTextCount: nil, added: nil, metacritic: nil, playtime: nil,
+            suggestionsCount: nil, updated: nil, reviewsCount: nil,
+            platforms: self.platforms.map { platform in
+                PlatformElement(
+                    platform: PlatformPlatform(
+                        id: platform.id,
+                        name: platform.name,
+                        slug: nil,
+                        yearStart: nil,
+                        gamesCount: nil,
+                        imageBackground: nil
+                    ),
+                    releasedAt: nil,
+                    requirementsEn: Requirements(
+                        minimum: platform.minimumRequirements,
+                        recommended: platform.recommendedRequirements
+                    ),
+                    requirementsRu: nil
+                )
+            },
+            parentPlatforms: nil,
+            genres: self.genres.map { genre in
+                Genre(id: genre.id, name: genre.name, slug: nil, gamesCount: nil, imageBackground: nil, domain: nil, language: nil)
+            },
+            stores: nil,
+            esrbRating: EsrbRating(id: nil, name: self.esrbRating, slug: nil),
+            shortScreenshots: nil
+        )
+    }
+}
+
+extension GameListItemModel {
+    func toFavoriteGameEntity(model: GameListItemModel) -> FavoriteGameEntity {
+        return FavoriteGameEntity(
+            id: model.id ?? 0,
+            title: model.name,
+            releaseDate: model.released,
+            rating: model.rating,
+            imageUrl: model.backgroundImage,
+            esrbRating: model.esrbRating?.name ?? "",
+            platforms: model.platforms?.map { platformElement in
+                PlatformEntity(
+                    id: platformElement.platform?.id ?? 0,
+                    name: platformElement.platform?.name ?? "",
+                    minimumRequirements: platformElement.requirementsEn?.minimum ?? "",
+                    recommendedRequirements: platformElement.requirementsEn?.recommended ?? ""
+                )
+            } ?? [],
+            genres: model.genres?.map { genre in
+                GenreEntity(
+                    id: genre.id ?? 0,
+                    name: genre.name ?? ""
+                )
+            } ?? []
+        )
+    }
+}

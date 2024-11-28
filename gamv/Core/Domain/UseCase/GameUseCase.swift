@@ -6,7 +6,7 @@
 //
 
 protocol GameUseCase {
-    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, URLError>
+    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, Error>
 }
 
 final class GameUseCaseImpl: GameUseCase {
@@ -16,7 +16,7 @@ final class GameUseCaseImpl: GameUseCase {
         self.gameRepository = gameRepository
     }
     
-    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, URLError> {
+    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, Error> {
         return await gameRepository.getListOfGames(page: page, search: search)
     }
 }

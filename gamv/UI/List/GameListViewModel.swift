@@ -15,7 +15,7 @@ class GameListViewModel: ObservableObject {
     private var getGamesTask: Task<Void, Never>?
     
     //Observables
-    @Published var listViewState: ViewState<[GameListItemModel], URLError> = .loading
+    @Published var listViewState: ViewState<[GameListItemModel], Error> = .loading
             
     init(gameUseCase: GameUseCase) {
         self.gameUseCase = gameUseCase
