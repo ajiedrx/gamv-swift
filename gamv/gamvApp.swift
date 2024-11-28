@@ -11,7 +11,7 @@ import SwiftUI
 struct gamvApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            GameListPage(gameListViewModel: GameListViewModel(gameUseCase: Injection.init().provideGameUseCase()))
         }
     }
 }
