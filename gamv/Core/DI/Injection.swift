@@ -6,13 +6,15 @@
 //
 
 import Foundation
+import SwiftData
 
 final class Injection: NSObject {
     private func provideRepository() -> GameRepositoryProtocol {
-        
         let remoteDS = RemoteDataSource.sharedInstance
         
-        return GameRepository.getInstance(remote: remoteDS)
+        let favoriteGameModelContainer = try! ModelContainer(for: FavoriteGameEntity.self)
+        
+        return GameRepository.getInstance(remote: remoteDS, local: LocalDataSource(modelContainer: favoriteGameModelContainer))
     }
 
     func provideGameUseCase() -> GameUseCase {

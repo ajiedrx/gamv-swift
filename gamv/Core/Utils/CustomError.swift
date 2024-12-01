@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Error: LocalizedError {
+enum CommonError: LocalizedError {
 
     case unknownError(String)
     case invalidResponse

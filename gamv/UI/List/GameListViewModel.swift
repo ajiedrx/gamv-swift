@@ -15,7 +15,8 @@ class GameListViewModel: ObservableObject {
     private var getGamesTask: Task<Void, Never>?
     
     //Observables
-    @Published var listViewState: ViewState<[GameListItemModel], Error> = .loading
+    @Published var listViewState: ViewState<Any?, CommonError> = .loading
+    @Published var gameListData: [GameListItemModel] = []
             
     init(gameUseCase: GameUseCase) {
         self.gameUseCase = gameUseCase
@@ -37,12 +38,31 @@ class GameListViewModel: ObservableObject {
             
             await MainActor.run {
                 switch result {
-                case .success(let gameList):
-                    listViewState = .success(gameList.results ?? [])
+                case .success(let result):
+                    gameListData = result.results ?? []
+                    listViewState = .success(nil)
                 case .failure(let error):
                     listViewState = .failure(error)
                 }
             }
+        }
+    }
+    
+    func toggleGameIsFavorite(game: GameListItemModel) {
+        if let index = gameListData.firstIndex(where: { $0.id == game.id }) {
+            gameListData[index].isFavorite.toggle()
+        }
+    }
+    
+    func addFavorite(game: GameListItemModel) {
+        Task {
+            await gameUseCase.addFavorite(game: game)
+        }
+    }
+    
+    func removeFavorite(game: GameListItemModel) {
+        Task {
+            await gameUseCase.removeFavorite(game: game)
         }
     }
     

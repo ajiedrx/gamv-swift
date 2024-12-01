@@ -7,64 +7,84 @@
 
 import Foundation
 import SwiftUI
-import SwiftUICore
 
 struct GameListPage: View {
+    @EnvironmentObject var router: Router
+
     @StateObject private var gameListViewModel: GameListViewModel
 
-    @State var navigationPath: NavigationPath = NavigationPath()
+    @State private var showingAddFavoriteSuccessAlert = false
+    @State private var showingRemoveFavoriteSuccessAlert = false
 
     init(gameListViewModel: GameListViewModel) {
         _gameListViewModel = StateObject(wrappedValue: gameListViewModel)
     }
 
     var body: some View {
-        NavigationStack(path: $navigationPath) {
-            ZStack {
-                switch gameListViewModel.listViewState {
-                case .idle:
-                    EmptyView()
-                case .loading:
-                    LoadingView()
-                case .success(let gameList):
-                    GameListView(
-                        gameList: gameList,
-                        navigationPath: $navigationPath
-                    )
-                case .failure(let failure):
-                    ErrorView(
-                        error: failure,
-                        retryAction: gameListViewModel.getTopRatedGames
-                    )
-                }
-            }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    NavigationLink(value: ToolbarRoutes.profile) {
-                        Text("Profile")
+        ZStack {
+            switch gameListViewModel.listViewState {
+            case .idle:
+                EmptyView()
+            case .loading:
+                LoadingView()
+            case .success:
+                GameListView(
+                    gameListViewModel: gameListViewModel,
+                    onAddFavorite: { game in
+                        gameListViewModel.toggleGameIsFavorite(game: game)
+                        gameListViewModel.addFavorite(game: game)
+                    },
+                    onRemoveFavorite: { game in
+                        gameListViewModel.toggleGameIsFavorite(game: game)
+                        gameListViewModel.removeFavorite(game: game)
                     }
-                }
-            }
-            .navigationTitle("Games")
-            .navigationDestination(for: ToolbarRoutes.self) { route in
-                switch route {
-                case .profile:
-                    ProfileView()
-                }
+                )
+            case .failure(let failure):
+                ErrorView(
+                    error: failure,
+                    retryAction: gameListViewModel.getTopRatedGames
+                )
             }
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(
+                    action: { router.navigate(to: .profile) },
+                    label: {
+                        Label("Profile", systemImage: "person.crop.circle")
+                            .labelStyle(.iconOnly)
+                    }
+                )
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(
+                    action: { router.navigate(to: .favorite) },
+                    label: {
+                        Label("Favorite", systemImage: "star.fill").labelStyle(
+                            .iconOnly)
+                    }
+                )
+            }
+        }
+        .navigationTitle("Games")
         .onAppear { gameListViewModel.getTopRatedGames() }
         .onDisappear { gameListViewModel.onViewDisappear() }
     }
 }
 
 struct GameListView: View {
-    @State var gameList: [GameListItemModel]
-    @Binding var navigationPath: NavigationPath
+    @EnvironmentObject var router: Router
+
+    @StateObject var gameListViewModel: GameListViewModel
+
+    @State private var selectedGame: GameListItemModel?
+
+    let onAddFavorite: (GameListItemModel) -> Void
+    let onRemoveFavorite: (GameListItemModel) -> Void
 
     var body: some View {
         List {
-            ForEach(gameList) { game in
+            ForEach(gameListViewModel.gameListData) { game in
                 GameItemView(
                     title: game.name, imageURL: game.backgroundImage,
                     releaseDate: game.released, rating: game.rating
@@ -72,127 +92,44 @@ struct GameListView: View {
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
                 .scaleEffect(1.0)
-                .animation(.spring(), value: navigationPath)
                 .onTapGesture {
-                    navigationPath.append(game)
+                    router.navigate(to: .detail(game: game))
+                }
+                .swipeActions(allowsFullSwipe: false) {
+                    Button(
+                        action: {
+                            selectedGame = game
+                            game.isFavorite
+                                ? onRemoveFavorite(game) : onAddFavorite(game)
+                        },
+                        label: {
+                            Label(
+                                game.isFavorite
+                                    ? "Remove favorite" : "Add favorite",
+                                systemImage: game.isFavorite
+                                    ? "star.fill" : "star"
+                            )
+                            .labelStyle(.iconOnly)
+                            .environment(\.symbolVariants, .none)
+                        }
+                    )
+                    .tint(.blue)
                 }
             }
-        }
-        .navigationDestination(for: GameListItemModel.self) { game in
-            GameDetailPage(game: game)
         }
         .listRowSpacing(16)
         .scrollContentBackground(.hidden)
-    }
-}
-
-struct GameItemView: View {
-    let title: String
-    let imageURL: String
-    let releaseDate: String
-    let rating: Double
-
-    private let aspectRatio: CGFloat = 16 / 9
-    private let cornerRadius: CGFloat = 24
-
-    var body: some View {
-        ZStack {
-            AsyncImage(url: URL(string: imageURL)) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(aspectRatio, contentMode: .fill)
-                        .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-                        .brightness(-0.2)
-                case .failure:
-                    Image(systemName: "photo")
-                case .empty:
-                    ProgressView()
-                @unknown default:
-                    ProgressView()
-                }
-            }
-
-            VStack {
-                HStack {
-                    Spacer()
-                    Label(
-                        title: {
-                            Text(String(rating))
-                                .foregroundColor(.white)
-                        },
-                        icon: {
-                            Image(systemName: "star.fill")
-                                .foregroundColor(.white)
-                        }
-                    )
-                    .font(.footnote)
-                    .labelStyle(.titleAndIcon)
-                    .padding()
-                }
-                Spacer()
-
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(title)
-                            .font(.title3)
-                            .fontWeight(.heavy)
-                            .foregroundColor(.white)
-
-                        Text(
-                            DateUtils.convertStringDate(
-                                date: releaseDate, inputFormat: "yyyy-MM-dd",
-                                outputFormat: "yyyy, dd MMM"
-                            )
-                        )
-                        .foregroundColor(.white)
-                        .font(.caption)
-                    }
-                    .padding()
-                    Spacer()
-                }
-            }
-        }.frame(height: 180)
-    }
-}
-
-struct LoadingView: View {
-    var body: some View {
-        ProgressView()
-            .progressViewStyle(CircularProgressViewStyle())
-            .scaleEffect(1.5)
-    }
-}
-
-struct ErrorView: View {
-    let error: Error
-    let retryAction: () -> Void
-
-    var body: some View {
-        VStack(spacing: 16) {
-            Text("Something went wrong")
-                .font(.headline)
-
-            Text(error.localizedDescription)
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            Button("Retry") {
-                retryAction()
-            }
+        .alert(item: $selectedGame) { game in
+            Alert(
+                title: Text(
+                    game.isFavorite ? "Remove favorite" : "Add favorite"),
+                message: Text(
+                    game.isFavorite
+                        ? ("Successfully removed " + game.name + " to favorites")
+                        : ("Successfully added " + game.name + " to favorites")
+                )
+            )
         }
-        .padding()
-    }
-}
-
-struct ButtonPressEffect: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)  // Smaller scale for faster response
-            .opacity(configuration.isPressed ? 0.9 : 1.0)
-            .animation(.linear(duration: 0.2), value: configuration.isPressed)  // Faster animation
     }
 }
 

@@ -33,6 +33,7 @@ struct GameListItemModel : Identifiable, Hashable, Equatable {
     let stores: [Store]?
     let esrbRating: EsrbRating?
     let shortScreenshots: [ShortScreenshot]?
+    var isFavorite: Bool = false
 }
 
 // MARK: - EsrbRating

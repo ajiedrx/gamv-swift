@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum ViewState<Success, Failure> where Failure : Error {
+enum ViewState<Success, CommonError> {
     case idle
     case loading
     case success(Success)
-    case failure(Failure)
+    case failure(CommonError)
 }

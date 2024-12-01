@@ -21,7 +21,7 @@ extension RemoteDataSource: RemoteDataSourceProtocol {
     func getListOfGames(page: Int, search: String) async throws -> GameListResponse {
         
         guard let url = URL(string: Endpoints.Gets.games.url) else {
-            throw Error.addressUnreachable(Endpoints.Gets.games.url)
+            throw CommonError.addressUnreachable(Endpoints.Gets.games.url)
         }
         
         let urlComponents = getUrlComponents(url: url, page: page, search: search)
@@ -58,13 +58,13 @@ extension RemoteDataSource: RemoteDataSourceProtocol {
     
     func getResponse<T : Decodable> (response: URLResponse, data: Data) throws -> T {
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode)
-        else { throw Error.invalidResponse }
+        else { throw CommonError.invalidResponse }
         
         do {
             let decoder = JSONDecoder()
             return try decoder.decode(T.self, from: data)
         } catch {
-            throw Error.invalidResponse
+            throw CommonError.invalidResponse
         }
     }
 }

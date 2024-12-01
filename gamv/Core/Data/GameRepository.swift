@@ -9,52 +9,117 @@ import Foundation
 
 protocol GameRepositoryProtocol {
     func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, Error
+        GameListModel, CommonError
     >
-    
+
     func fetchFavoriteGamesFromLocal() async -> Result<
-        [GameListModel], Error
+        [GameListItemModel], CommonError
     >
+
+    func saveFavoriteGame(game: GameListItemModel) async
+
+    func deleteFavoriteGame(game: GameListItemModel) async
 }
 
 final class GameRepository: NSObject {
     fileprivate var remoteDS: RemoteDataSource
+    fileprivate var localDS: LocalDataSource
 
-    private init(remoteDS: RemoteDataSource) {
+    private init(remoteDS: RemoteDataSource, localDS: LocalDataSource) {
         self.remoteDS = remoteDS
+        self.localDS = localDS
     }
 
-    static func getInstance(remote: RemoteDataSource) -> GameRepository {
-        return GameRepository(remoteDS: remote)
+    static func getInstance(remote: RemoteDataSource, local: LocalDataSource)
+        -> GameRepository
+    {
+        return GameRepository(remoteDS: remote, localDS: local)
     }
 }
 
 extension GameRepository: GameRepositoryProtocol {
-    func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, Error
-    > {
+    func getListOfGames(page: Int, search: String) async -> Result<GameListModel, CommonError> {
         do {
-            let gameList = try await remoteDS.getListOfGames(
-                page: page, search: search)
-            return .success(gameList.toGameListModel())
-        } catch let error as Error {
+            async let remoteResponse = remoteDS.getListOfGames(page: page, search: search)
+            async let favoriteGameIds = localDS.fetchFavoriteGameEntityIds()
+
+            let (response, favoriteIds) = try await (
+                remoteResponse, favoriteGameIds
+            )
+
+            let favoriteIdSet = Set(favoriteIds)
+
+            let gameListItems = response.results?.map { result in
+                var game = result.toGameListItemModel()
+                game.isFavorite = favoriteIdSet.contains(game.id ?? 0)
+                return game
+            }
+
+            return .success(
+                GameListModel(
+                    count: response.count,
+                    next: response.next,
+                    previous: response.previous,
+                    results: gameListItems
+                )
+            )
+        } catch let error as CommonError {
             return .failure(error)
         } catch {
             return .failure(.unknownError(error.localizedDescription))
         }
     }
-    
-    
+
+    func fetchFavoriteGamesFromLocal() async -> Result<
+        [GameListItemModel], CommonError
+    > {
+        do {
+            let gameList = try await localDS.fetchFavoriteGameEntity()
+            return .success(
+                gameList.map { game in
+                    game.toGameListItemModel()
+                })
+        } catch {
+            return .failure(.unknownError(error.localizedDescription))
+        }
+    }
+
+    func saveFavoriteGame(game: GameListItemModel) async {
+        do {
+            try await localDS.addFavoriteGameEntity(
+                entity: game.toFavoriteGameEntity(model: game))
+        } catch {
+            print("Error saving favorite game: \(error)")
+        }
+
+    }
+
+    func deleteFavoriteGame(game: GameListItemModel) async {
+        do {
+            try await localDS.removeFavoriteGameEntity(
+                entity: game.toFavoriteGameEntity(model: game))
+        } catch {
+            print("Error deleting favorite game: \(error)")
+        }
+    }
 }
 
 final class MockGameRepository: GameRepositoryProtocol {
     var isSimulateError = false
-    
-    func fetchFavoriteGamesFromLocal() async -> Result<[GameListModel], Error> {
+
+    func fetchFavoriteGamesFromLocal() async -> Result<
+        [GameListItemModel], CommonError
+    > {
         return .success([])
     }
 
-    func getListOfGames(page: Int, search: String) async -> Result<GameListModel, Error> {
+    func saveFavoriteGame(game: GameListItemModel) async {}
+
+    func deleteFavoriteGame(game: GameListItemModel) async {}
+
+    func getListOfGames(page: Int, search: String) async -> Result<
+        GameListModel, CommonError
+    > {
         if isSimulateError { return .failure(.unknownError("Simulate error")) }
 
         let dummyGameListModel = GameListModel(
