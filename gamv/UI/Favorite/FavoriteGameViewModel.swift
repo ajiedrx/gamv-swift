@@ -6,10 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 class FavoriteGameViewModel: ObservableObject {
     //Dependencies
     private var gameUseCase: GameUseCase
+    
+    //Combine Cancellables
+    private var cancellables = Set<AnyCancellable>()
     
     //Observables
     @Published var listViewState: ViewState<Any?, CommonError> = .loading
@@ -22,19 +26,23 @@ class FavoriteGameViewModel: ObservableObject {
     func getFavoriteGames() {
         listViewState = .loading
         
-        Task {
-            let result = await gameUseCase.getFavoriteGames()
-            
-            await MainActor.run {
-                switch result {
-                case .success(let result):
-                    favoriteGames = result
-                    listViewState = .success(nil)
-                case .failure(let error):
-                    listViewState = .failure(error)
+        gameUseCase.getFavoriteGames()
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: DispatchQueue.main)
+            .sink(
+                receiveCompletion: { completion in
+                    switch completion {
+                    case .failure(let error):
+                        self.listViewState = .failure(error)
+                    case .finished:
+                        self.listViewState = .success(nil)
+                    }
+                },
+                receiveValue: { value in
+                    self.favoriteGames = value
                 }
-            }
-        }
+            )
+            .store(in: &cancellables)
     }
     
     func removeFavoriteGame(game: GameListItemModel) {
@@ -43,7 +51,9 @@ class FavoriteGameViewModel: ObservableObject {
         favoriteGames.remove(at: toBeRemovedIndex)
         
         Task {
-            await gameUseCase.removeFavorite(game: game)
+            do {
+                try await gameUseCase.removeFavorite(game: game)
+            } catch {}
         }
     }
 }

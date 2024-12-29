@@ -5,20 +5,16 @@
 //  Created by Ajie DR on 17/11/24.
 //
 
+import Combine
 import Foundation
 
 protocol GameRepositoryProtocol {
-    func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, CommonError
-    >
+    func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError>
 
-    func fetchFavoriteGamesFromLocal() async -> Result<
-        [GameListItemModel], CommonError
-    >
+    func fetchFavoriteGamesFromLocal() -> AnyPublisher<[GameListItemModel], CommonError>
 
-    func saveFavoriteGame(game: GameListItemModel) async
-
-    func deleteFavoriteGame(game: GameListItemModel) async
+    func saveFavoriteGame(game: GameListItemModel) async throws
+    func deleteFavoriteGame(game: GameListItemModel) async throws
 }
 
 final class GameRepository: NSObject {
@@ -38,15 +34,27 @@ final class GameRepository: NSObject {
 }
 
 extension GameRepository: GameRepositoryProtocol {
-    func getListOfGames(page: Int, search: String) async -> Result<GameListModel, CommonError> {
-        do {
-            async let remoteResponse = remoteDS.getListOfGames(page: page, search: search)
-            async let favoriteGameIds = localDS.fetchFavoriteGameEntityIds()
+    func getListOfGames(page: Int, search: String) -> AnyPublisher<
+        GameListModel, CommonError
+    > {
+        let localPublisher = Future<[Int], CommonError> { promise in
+            Task {
+                let favoriteIds = await self.localDS
+                    .fetchFavoriteGameEntityIds()
+                favoriteIds.sink(
+                    receiveCompletion: { completion in },
+                    receiveValue: { ids in
+                        promise(.success(ids))
+                    }
+                ).cancel()
+            }
+        }.eraseToAnyPublisher()
 
-            let (response, favoriteIds) = try await (
-                remoteResponse, favoriteGameIds
-            )
-
+        return Publishers.Zip(
+            remoteDS.getListOfGames(page: page, search: search),
+            localPublisher
+        )
+        .map { response, favoriteIds in
             let favoriteIdSet = Set(favoriteIds)
 
             let gameListItems = response.results?.map { result in
@@ -55,72 +63,68 @@ extension GameRepository: GameRepositoryProtocol {
                 return game
             }
 
-            return .success(
-                GameListModel(
-                    count: response.count,
-                    next: response.next,
-                    previous: response.previous,
-                    results: gameListItems
-                )
+            return GameListModel(
+                count: response.count,
+                next: response.next,
+                previous: response.previous,
+                results: gameListItems
             )
-        } catch let error as CommonError {
-            return .failure(error)
-        } catch {
-            return .failure(.unknownError(error.localizedDescription))
         }
+
+        .eraseToAnyPublisher()
     }
 
-    func fetchFavoriteGamesFromLocal() async -> Result<
+    func fetchFavoriteGamesFromLocal() -> AnyPublisher<
         [GameListItemModel], CommonError
     > {
-        do {
-            let gameList = try await localDS.fetchFavoriteGameEntity()
-            return .success(
-                gameList.map { game in
-                    game.toGameListItemModel()
-                })
-        } catch {
-            return .failure(.unknownError(error.localizedDescription))
-        }
+        Future<[GameListItemModel], CommonError> { promise in
+            Task {
+                let favoriteGames = await self.localDS.fetchFavoriteGameEntity()
+
+                favoriteGames.sink(
+                    receiveCompletion: { completion in },
+                    receiveValue: { favoriteGames in
+                        promise(
+                            .success(
+                                favoriteGames.map { game in
+                                    game.toGameListItemModel()
+                                }))
+                    }
+                ).cancel()
+            }
+        }.eraseToAnyPublisher()
     }
 
-    func saveFavoriteGame(game: GameListItemModel) async {
-        do {
-            try await localDS.addFavoriteGameEntity(
-                entity: game.toFavoriteGameEntity(model: game))
-        } catch {
-            print("Error saving favorite game: \(error)")
-        }
-
+    func saveFavoriteGame(game: GameListItemModel) async throws {
+        try await self.localDS.addFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
     }
 
-    func deleteFavoriteGame(game: GameListItemModel) async {
-        do {
-            try await localDS.removeFavoriteGameEntity(
-                entity: game.toFavoriteGameEntity(model: game))
-        } catch {
-            print("Error deleting favorite game: \(error)")
-        }
+    func deleteFavoriteGame(game: GameListItemModel) async throws {
+        try await self.localDS.removeFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
     }
 }
 
 final class MockGameRepository: GameRepositoryProtocol {
     var isSimulateError = false
 
-    func fetchFavoriteGamesFromLocal() async -> Result<
-        [GameListItemModel], CommonError
-    > {
-        return .success([])
+    func fetchFavoriteGamesFromLocal() -> AnyPublisher<[GameListItemModel], CommonError> {
+        Future<[GameListItemModel], CommonError> { promise in
+            promise(.success([]))
+        }
+        .eraseToAnyPublisher()
     }
 
-    func saveFavoriteGame(game: GameListItemModel) async {}
+    func saveFavoriteGame(game: GameListItemModel) async throws {}
 
-    func deleteFavoriteGame(game: GameListItemModel) async {}
+    func deleteFavoriteGame(game: GameListItemModel) async throws {}
 
-    func getListOfGames(page: Int, search: String) async -> Result<
-        GameListModel, CommonError
-    > {
-        if isSimulateError { return .failure(.unknownError("Simulate error")) }
+    func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError> {
+        if isSimulateError {
+            return Future<GameListModel, CommonError> { promise in
+                promise(.failure(CommonError.unknownError("Simulated error")))
+            }
+            .eraseToAnyPublisher()
+        }
 
         let dummyGameListModel = GameListModel(
             count: 100,
@@ -638,6 +642,9 @@ final class MockGameRepository: GameRepositoryProtocol {
                 ),
             ]
         )
-        return .success(dummyGameListModel)
+        return Future<GameListModel, CommonError> { promise in
+            promise(.success(dummyGameListModel))
+        }
+        .eraseToAnyPublisher()
     }
 }

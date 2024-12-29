@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import Combine
 
 class GameListViewModel: ObservableObject {
     //Dependencies
     private var gameUseCase: GameUseCase
     
-    //Tasks
-    private var getGamesTask: Task<Void, Never>?
+    //Combine Cancellables
+    private var cancellables = Set<AnyCancellable>()
     
     //Observables
     @Published var listViewState: ViewState<Any?, CommonError> = .loading
@@ -23,29 +24,22 @@ class GameListViewModel: ObservableObject {
     }
     
     func getTopRatedGames() {
-        getGamesTask?.cancel()
-        
         listViewState = .loading
         
-        getGamesTask = Task {
-            guard !Task.isCancelled
-            else {
-                await MainActor.run { listViewState = .idle }
-                return
-            }
-            
-            let result = await gameUseCase.getListOfGame(page: 1, search: "") //TODO paging
-            
-            await MainActor.run {
-                switch result {
-                case .success(let result):
-                    gameListData = result.results ?? []
-                    listViewState = .success(nil)
+        gameUseCase.getListOfGame(page: 1, search: "")
+            .subscribe(on: DispatchQueue.global(qos: .background))
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+                switch completion {
                 case .failure(let error):
-                    listViewState = .failure(error)
+                    self.listViewState = .failure(error)
+                case .finished:
+                    self.listViewState = .success(nil)
                 }
-            }
-        }
+            }, receiveValue: { value in
+                self.gameListData = value.results ?? []
+            })
+            .store(in: &cancellables)
     }
     
     func toggleGameIsFavorite(game: GameListItemModel) {
@@ -56,19 +50,21 @@ class GameListViewModel: ObservableObject {
     
     func addFavorite(game: GameListItemModel) {
         Task {
-            await gameUseCase.addFavorite(game: game)
+            do {
+                try await gameUseCase.addFavorite(game: game)
+            } catch {}
         }
     }
     
     func removeFavorite(game: GameListItemModel) {
         Task {
-            await gameUseCase.removeFavorite(game: game)
+            do {
+                try await gameUseCase.removeFavorite(game: game)
+            } catch {}
         }
     }
     
     func onViewDisappear() {
-        getGamesTask?.cancel()
-        getGamesTask = nil
         listViewState = .idle
     }
 }

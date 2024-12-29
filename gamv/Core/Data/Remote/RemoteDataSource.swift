@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import Combine
 
 protocol RemoteDataSourceProtocol {
-    func getListOfGames(page: Int, search: String) async throws -> GameListResponse
+    func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListResponse, CommonError>
 }
 
 final class RemoteDataSource: NSObject {
@@ -17,23 +18,32 @@ final class RemoteDataSource: NSObject {
 }
 
 extension RemoteDataSource: RemoteDataSourceProtocol {
-    
-    func getListOfGames(page: Int, search: String) async throws -> GameListResponse {
-        
-        guard let url = URL(string: Endpoints.Gets.games.url) else {
-            throw CommonError.addressUnreachable(Endpoints.Gets.games.url)
+    func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListResponse, CommonError> {
+            Future { promise in
+                Task {
+                    do {
+                        guard let url = URL(string: Endpoints.Gets.games.url) else {
+                            promise(.failure(.addressUnreachable(Endpoints.Gets.games.url)))
+                            return
+                        }
+                        
+                        let urlComponents = self.getUrlComponents(url: url, page: page, search: search)
+                        let request = self.getRequest(urlComponents: urlComponents, method: .GET)
+                        
+                        let (data, response) = try await URLSession.shared.data(for: request)
+                        let result: GameListResponse = try self.getResponse(response: response, data: data)
+                        promise(.success(result))
+                    } catch let error as CommonError {
+                        promise(.failure(error))
+                    } catch {
+                        promise(.failure(.unknownError(error.localizedDescription)))
+                    }
+                }
+            }
+            .eraseToAnyPublisher()
         }
-        
-        let urlComponents = getUrlComponents(url: url, page: page, search: search)
-        
-        let (data, response) = try await URLSession.shared.data(
-            for: getRequest(urlComponents: urlComponents, method: HTTPMethod.GET)
-        )
-        
-        return try getResponse(response: response, data: data)
-    }
     
-    func getUrlComponents(url: URL, page: Int, search: String) -> URLComponents {
+    private func getUrlComponents(url: URL, page: Int, search: String) -> URLComponents {
         var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true)!
         
         let queryItems: [URLQueryItem] = [
@@ -47,7 +57,7 @@ extension RemoteDataSource: RemoteDataSourceProtocol {
         return urlComponents
     }
     
-    func getRequest(urlComponents: URLComponents, method: HTTPMethod) -> URLRequest {
+    private func getRequest(urlComponents: URLComponents, method: HTTPMethod) -> URLRequest {
         var request = URLRequest(url: urlComponents.url!)
         
         request.httpMethod = method.method
@@ -56,7 +66,7 @@ extension RemoteDataSource: RemoteDataSourceProtocol {
         return request
     }
     
-    func getResponse<T : Decodable> (response: URLResponse, data: Data) throws -> T {
+    private func getResponse<T : Decodable> (response: URLResponse, data: Data) throws -> T {
         guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode)
         else { throw CommonError.invalidResponse }
         

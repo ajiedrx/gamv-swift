@@ -5,11 +5,13 @@
 //  Created by Ajie DR on 17/11/24.
 //
 
+import Combine
+
 protocol GameUseCase {
-    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, CommonError>
-    func addFavorite(game: GameListItemModel) async -> Void
-    func removeFavorite(game: GameListItemModel) async -> Void
-    func getFavoriteGames() async -> Result<[GameListItemModel], CommonError>
+    func getListOfGame(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError>
+    func addFavorite(game: GameListItemModel) async throws
+    func removeFavorite(game: GameListItemModel) async throws
+    func getFavoriteGames() -> AnyPublisher<[GameListItemModel], CommonError>
 }
 
 final class GameUseCaseImpl: GameUseCase {
@@ -19,19 +21,19 @@ final class GameUseCaseImpl: GameUseCase {
         self.gameRepository = gameRepository
     }
     
-    func getListOfGame(page: Int, search: String) async -> Result<GameListModel, CommonError> {
-        return await gameRepository.getListOfGames(page: page, search: search)
+    func getListOfGame(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError> {
+        return gameRepository.getListOfGames(page: page, search: search)
     }
     
-    func addFavorite(game: GameListItemModel) async {
-        await gameRepository.saveFavoriteGame(game: game)
+    func addFavorite(game: GameListItemModel) async throws {
+        try await gameRepository.saveFavoriteGame(game: game)
     }
     
-    func removeFavorite(game: GameListItemModel) async {
-        await gameRepository.deleteFavoriteGame(game: game)
+    func removeFavorite(game: GameListItemModel) async throws {
+        try await gameRepository.deleteFavoriteGame(game: game)
     }
     
-    func getFavoriteGames() async -> Result<[GameListItemModel], CommonError> {
-        return await gameRepository.fetchFavoriteGamesFromLocal()
+    func getFavoriteGames() -> AnyPublisher<[GameListItemModel], CommonError> {
+        return gameRepository.fetchFavoriteGamesFromLocal()
     }
 }
