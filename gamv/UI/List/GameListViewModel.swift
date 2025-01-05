@@ -10,7 +10,9 @@ import Combine
 
 class GameListViewModel: ObservableObject {
     //Dependencies
-    private var gameUseCase: GameUseCase
+    private var getGameListUseCase: GetGameListUseCase
+    private var addFavoriteGameUseCase: AddFavoriteGameUseCase
+    private var removeFavoriteGameUseCase: RemoveFavoriteGameUseCase
     
     //Combine Cancellables
     private var cancellables = Set<AnyCancellable>()
@@ -19,14 +21,16 @@ class GameListViewModel: ObservableObject {
     @Published var listViewState: ViewState<Any?, CommonError> = .loading
     @Published var gameListData: [GameListItemModel] = []
             
-    init(gameUseCase: GameUseCase) {
-        self.gameUseCase = gameUseCase
+    init(getGameListUseCase: GetGameListUseCase, addFavoriteGameUseCase: AddFavoriteGameUseCase, removeFavoriteGameUseCase: RemoveFavoriteGameUseCase) {
+        self.getGameListUseCase = getGameListUseCase
+        self.addFavoriteGameUseCase = addFavoriteGameUseCase
+        self.removeFavoriteGameUseCase = removeFavoriteGameUseCase
     }
     
     func getTopRatedGames() {
         listViewState = .loading
         
-        gameUseCase.getListOfGame(page: 1, search: "")
+        getGameListUseCase.execute(page: 1, search: "")
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -51,7 +55,7 @@ class GameListViewModel: ObservableObject {
     func addFavorite(game: GameListItemModel) {
         Task {
             do {
-                try await gameUseCase.addFavorite(game: game)
+                try await addFavoriteGameUseCase.execute(game: game)
             } catch {}
         }
     }
@@ -59,7 +63,7 @@ class GameListViewModel: ObservableObject {
     func removeFavorite(game: GameListItemModel) {
         Task {
             do {
-                try await gameUseCase.removeFavorite(game: game)
+                try await removeFavoriteGameUseCase.execute(game: game)
             } catch {}
         }
     }

@@ -10,7 +10,8 @@ import Combine
 
 class FavoriteGameViewModel: ObservableObject {
     //Dependencies
-    private var gameUseCase: GameUseCase
+    private var getFavoriteGameListUseCase: GetFavoriteGameListUseCase
+    private var removeFavoriteGameUseCase: RemoveFavoriteGameUseCase
     
     //Combine Cancellables
     private var cancellables = Set<AnyCancellable>()
@@ -19,14 +20,18 @@ class FavoriteGameViewModel: ObservableObject {
     @Published var listViewState: ViewState<Any?, CommonError> = .loading
     @Published var favoriteGames: [GameListItemModel] = []
     
-    init(gameUseCase: GameUseCase) {
-        self.gameUseCase = gameUseCase
+    init(
+        getFavoriteGameListUseCase: GetFavoriteGameListUseCase,
+        removeFavoriteGameUseCase: RemoveFavoriteGameUseCase
+    ) {
+        self.getFavoriteGameListUseCase = getFavoriteGameListUseCase
+        self.removeFavoriteGameUseCase = removeFavoriteGameUseCase
     }
     
     func getFavoriteGames() {
         listViewState = .loading
         
-        gameUseCase.getFavoriteGames()
+        getFavoriteGameListUseCase.execute()
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
             .sink(
@@ -52,7 +57,7 @@ class FavoriteGameViewModel: ObservableObject {
         
         Task {
             do {
-                try await gameUseCase.removeFavorite(game: game)
+                try await removeFavoriteGameUseCase.execute(game: game)
             } catch {}
         }
     }

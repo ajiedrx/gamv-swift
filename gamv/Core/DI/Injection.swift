@@ -16,11 +16,29 @@ final class Injection: NSObject {
         
         return GameRepository.getInstance(remote: remoteDS, local: LocalDataSource(modelContainer: favoriteGameModelContainer))
     }
-
-    func provideGameUseCase() -> GameUseCase {
+    
+    func provideGetGameListUseCase() -> GetGameListUseCase {
         let repository = provideRepository()
         
-        return GameUseCaseImpl(gameRepository: repository)
+        return GetGameListUseCase(gameRepository: repository)
+    }
+    
+    func provideGetFavoriteGameListUseCase() -> GetFavoriteGameListUseCase {
+        let repository = provideRepository()
+        
+        return GetFavoriteGameListUseCase(gameRepository: repository)
+    }
+    
+    func provideAddFavoriteGameUseCase() -> AddFavoriteGameUseCase {
+        let repository = provideRepository()
+        
+        return AddFavoriteGameUseCase(gameRepository: repository)
+    }
+    
+    func provideRemoveFavoriteGameUseCase() -> RemoveFavoriteGameUseCase {
+        let repository = provideRepository()
+        
+        return RemoveFavoriteGameUseCase(gameRepository: repository)
     }
 }
 

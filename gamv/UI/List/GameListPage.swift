@@ -136,9 +136,9 @@ struct GameListView: View {
 #Preview {
     GameListPage(
         gameListViewModel: GameListViewModel(
-            gameUseCase: GameUseCaseImpl(
-                gameRepository: MockGameRepository()
-            )
+            getGameListUseCase: GetGameListUseCase(gameRepository: MockGameRepository()),
+            addFavoriteGameUseCase: AddFavoriteGameUseCase(gameRepository: MockGameRepository()),
+            removeFavoriteGameUseCase: RemoveFavoriteGameUseCase(gameRepository: MockGameRepository())
         )
     )
 }

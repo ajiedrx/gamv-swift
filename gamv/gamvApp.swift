@@ -16,7 +16,9 @@ struct gamvApp: App {
             NavigationStack(path: $router.navPath) {
                 GameListPage(
                     gameListViewModel: GameListViewModel(
-                        gameUseCase: Injection.init().provideGameUseCase())
+                        getGameListUseCase: Injection.init().provideGetGameListUseCase(),
+                        addFavoriteGameUseCase: Injection.init().provideAddFavoriteGameUseCase(),
+                        removeFavoriteGameUseCase: Injection.init().provideRemoveFavoriteGameUseCase())
                 )
                 .navigationDestination(for: Router.Destination.self) {
                     destination in
@@ -26,8 +28,10 @@ struct gamvApp: App {
                     case .favorite:
                         FavoriteGamePage(
                             favoriteGameViewModel: FavoriteGameViewModel(
-                                gameUseCase: Injection.init()
-                                    .provideGameUseCase()))
+                                getFavoriteGameListUseCase: Injection.init().provideGetFavoriteGameListUseCase(),
+                                removeFavoriteGameUseCase: Injection.init().provideRemoveFavoriteGameUseCase()
+                            )
+                        )
                     case .detail(let game):
                         GameDetailPage(game: game)
                     }

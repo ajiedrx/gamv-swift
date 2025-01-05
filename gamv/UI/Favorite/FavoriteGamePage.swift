@@ -57,49 +57,53 @@ struct FavoriteGameListView: View {
     let onRemoveFavorite: (GameListItemModel) -> Void
 
     var body: some View {
-        List {
-            ForEach(favoriteGameViewModel.favoriteGames) { game in
-                GameItemView(
-                    title: game.name, imageURL: game.backgroundImage,
-                    releaseDate: game.released, rating: game.rating
-                )
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-                .scaleEffect(1.0)
-                .onTapGesture {
-                    router.navigate(to: .detail(game: game))
-                }
-                .swipeActions(allowsFullSwipe: false) {
-                    Button(
-                        action: {
-                            selectedGame = game
-                            onRemoveFavorite(game)
-                        },
-                        label: {
-                            Label(
-                                "Remove favorite",
-                                systemImage: "trash.fill"
-                            )
-                            .labelStyle(.iconOnly)
-                            .environment(\.symbolVariants, .none)
-                        }
+        if(favoriteGameViewModel.favoriteGames.isEmpty) {
+            Text("No favorite games")
+        } else {
+            List {
+                ForEach(favoriteGameViewModel.favoriteGames) { game in
+                    GameItemView(
+                        title: game.name, imageURL: game.backgroundImage,
+                        releaseDate: game.released, rating: game.rating
                     )
-                    .tint(.red)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                    .scaleEffect(1.0)
+                    .onTapGesture {
+                        router.navigate(to: .detail(game: game))
+                    }
+                    .swipeActions(allowsFullSwipe: false) {
+                        Button(
+                            action: {
+                                selectedGame = game
+                                onRemoveFavorite(game)
+                            },
+                            label: {
+                                Label(
+                                    "Remove favorite",
+                                    systemImage: "trash.fill"
+                                )
+                                .labelStyle(.iconOnly)
+                                .environment(\.symbolVariants, .none)
+                            }
+                        )
+                        .tint(.red)
+                    }
                 }
             }
-        }
-        .navigationDestination(for: GameListItemModel.self) { game in
-            GameDetailPage(game: game)
-        }
-        .listRowSpacing(16)
-        .scrollContentBackground(.hidden)
-        .alert(item: $selectedGame) { game in
-            Alert(
-                title: Text("Remove favorite"),
-                message: Text(
-                    "Successfully removed " + game.name + " to favorites"
+            .navigationDestination(for: GameListItemModel.self) { game in
+                GameDetailPage(game: game)
+            }
+            .listRowSpacing(16)
+            .scrollContentBackground(.hidden)
+            .alert(item: $selectedGame) { game in
+                Alert(
+                    title: Text("Remove favorite"),
+                    message: Text(
+                        "Successfully removed " + game.name + " to favorites"
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -107,9 +111,8 @@ struct FavoriteGameListView: View {
 #Preview {
     FavoriteGamePage(
         favoriteGameViewModel: FavoriteGameViewModel(
-            gameUseCase: GameUseCaseImpl(
-                gameRepository: MockGameRepository()
-            )
+            getFavoriteGameListUseCase: GetFavoriteGameListUseCase(gameRepository: MockGameRepository()),
+            removeFavoriteGameUseCase: RemoveFavoriteGameUseCase(gameRepository: MockGameRepository())
         )
     )
 }
