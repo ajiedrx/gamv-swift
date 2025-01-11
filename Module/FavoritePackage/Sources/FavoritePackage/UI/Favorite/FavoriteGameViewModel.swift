@@ -7,8 +7,10 @@
 
 import Foundation
 import Combine
+import CorePackage
+import CommonPackage
 
-class FavoriteGameViewModel: ObservableObject {
+public class FavoriteGameViewModel: ObservableObject {
     //Dependencies
     private var getFavoriteGameListUseCase: GetFavoriteGameListUseCase
     private var removeFavoriteGameUseCase: RemoveFavoriteGameUseCase
@@ -20,7 +22,7 @@ class FavoriteGameViewModel: ObservableObject {
     @Published var listViewState: ViewState<Any?, CommonError> = .loading
     @Published var favoriteGames: [GameListItemModel] = []
     
-    init(
+    public init(
         getFavoriteGameListUseCase: GetFavoriteGameListUseCase,
         removeFavoriteGameUseCase: RemoveFavoriteGameUseCase
     ) {

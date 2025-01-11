@@ -1,0 +1,15 @@
+{
+  "originHash" : "d51fb4e844b8ad59f57931710daf529edef8174e5ac23c46599eb8a42a39c0ea",
+  "pins" : [
+    {
+      "identity" : "gamv-core-module",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ajiedrx/gamv-core-module",
+      "state" : {
+        "branch" : "main",
+        "revision" : "6eec4ff62df746e2effdaca4d852481815aa1c18"
+      }
+    }
+  ],
+  "version" : 3
+}

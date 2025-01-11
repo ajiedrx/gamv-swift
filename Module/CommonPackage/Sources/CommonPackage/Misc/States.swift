@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ViewState<Success, CommonError> {
+public enum ViewState<Success, CommonError> {
     case idle
     case loading
     case success(Success)

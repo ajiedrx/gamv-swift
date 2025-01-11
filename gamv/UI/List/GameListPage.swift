@@ -7,6 +7,8 @@
 
 import Foundation
 import SwiftUI
+import CorePackage
+import CommonPackage
 
 struct GameListPage: View {
     @EnvironmentObject var router: Router

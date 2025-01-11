@@ -7,8 +7,10 @@
 
 import Foundation
 import SwiftUI
+import CorePackage
+import CommonPackage
 
-struct FavoriteGamePage: View {
+public struct FavoriteGamePage: View {
     @EnvironmentObject var router: Router
 
     @StateObject private var favoriteGameViewModel: FavoriteGameViewModel
@@ -16,12 +18,12 @@ struct FavoriteGamePage: View {
     @State private var showingAddFavoriteSuccessAlert = false
     @State private var showingRemoveFavoriteSuccessAlert = false
 
-    init(favoriteGameViewModel: FavoriteGameViewModel) {
+    public init(favoriteGameViewModel: FavoriteGameViewModel) {
         _favoriteGameViewModel = StateObject(
             wrappedValue: favoriteGameViewModel)
     }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             switch favoriteGameViewModel.listViewState {
             case .idle:
@@ -90,9 +92,6 @@ struct FavoriteGameListView: View {
                         .tint(.red)
                     }
                 }
-            }
-            .navigationDestination(for: GameListItemModel.self) { game in
-                GameDetailPage(game: game)
             }
             .listRowSpacing(16)
             .scrollContentBackground(.hidden)

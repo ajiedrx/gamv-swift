@@ -7,6 +7,8 @@
 
 import Foundation
 import Combine
+import CorePackage
+import CommonPackage
 
 class GameListViewModel: ObservableObject {
     //Dependencies

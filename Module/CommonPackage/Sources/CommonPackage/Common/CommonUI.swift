@@ -7,8 +7,9 @@
 
 import Foundation
 import SwiftUI
+import CorePackage
 
-struct GameItemView: View {
+public struct GameItemView: View {
     let title: String
     let imageURL: String
     let releaseDate: String
@@ -16,8 +17,15 @@ struct GameItemView: View {
 
     private let aspectRatio: CGFloat = 16 / 9
     private let cornerRadius: CGFloat = 24
+    
+    public init(title: String, imageURL: String, releaseDate: String, rating: Double) {
+        self.title = title
+        self.imageURL = imageURL
+        self.releaseDate = releaseDate
+        self.rating = rating
+    }
 
-    var body: some View {
+    public var body: some View {
         ZStack {
             AsyncImage(url: URL(string: imageURL)) { phase in
                 switch phase {
@@ -80,19 +88,26 @@ struct GameItemView: View {
     }
 }
 
-struct LoadingView: View {
-    var body: some View {
+public struct LoadingView: View {
+    public init() {}
+    
+    public var body: some View {
         ProgressView()
             .progressViewStyle(CircularProgressViewStyle())
             .scaleEffect(1.5)
     }
 }
 
-struct ErrorView: View {
+public struct ErrorView: View {
     let error: CommonError
     let retryAction: () -> Void
+    
+    public init(error: CommonError, retryAction: @escaping () -> Void) {
+        self.error = error
+        self.retryAction = retryAction
+    }
 
-    var body: some View {
+    public var body: some View {
         VStack(spacing: 16) {
             Text("Something went wrong")
                 .font(.headline)
@@ -109,8 +124,8 @@ struct ErrorView: View {
     }
 }
 
-struct ButtonPressEffect: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
+public struct ButtonPressEffect: ButtonStyle {
+    public func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .opacity(configuration.isPressed ? 0.9 : 1.0)

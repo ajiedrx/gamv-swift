@@ -6,8 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		1172E92D2D32BB7700021891 /* CorePackage in Frameworks */ = {isa = PBXBuildFile; productRef = 1172E92C2D32BB7700021891 /* CorePackage */; };
+		1172E9462D32BCA200021891 /* FavoritePackage in Frameworks */ = {isa = PBXBuildFile; productRef = 1172E9452D32BCA200021891 /* FavoritePackage */; };
+		1172E9492D32BCB900021891 /* CommonPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 1172E9482D32BCB900021891 /* CommonPackage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		111287992CE4DAB600EA082F /* gamv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gamv.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1172E9422D32BC7300021891 /* CommonPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CommonPackage; path = Module/CommonPackage; sourceTree = "<group>"; };
+		1172E9432D32BC8500021891 /* FavoritePackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FavoritePackage; path = Module/FavoritePackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +31,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1172E92D2D32BB7700021891 /* CorePackage in Frameworks */,
+				1172E9492D32BCB900021891 /* CommonPackage in Frameworks */,
+				1172E9462D32BCA200021891 /* FavoritePackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +44,7 @@
 			isa = PBXGroup;
 			children = (
 				1112879B2CE4DAB600EA082F /* gamv */,
+				1172E9412D32BC7200021891 /* Frameworks */,
 				1112879A2CE4DAB600EA082F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +55,15 @@
 				111287992CE4DAB600EA082F /* gamv.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1172E9412D32BC7200021891 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1172E9432D32BC8500021891 /* FavoritePackage */,
+				1172E9422D32BC7300021891 /* CommonPackage */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -65,6 +86,9 @@
 			);
 			name = gamv;
 			packageProductDependencies = (
+				1172E92C2D32BB7700021891 /* CorePackage */,
+				1172E9452D32BCA200021891 /* FavoritePackage */,
+				1172E9482D32BCB900021891 /* CommonPackage */,
 			);
 			productName = gamv;
 			productReference = 111287992CE4DAB600EA082F /* gamv.app */;
@@ -95,6 +119,9 @@
 			mainGroup = 111287902CE4DAB600EA082F;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				1172E92B2D32BA7F00021891 /* XCRemoteSwiftPackageReference "gamv-core-module" */,
+				1172E9442D32BCA200021891 /* XCLocalSwiftPackageReference "Module/FavoritePackage" */,
+				1172E9472D32BCB900021891 /* XCLocalSwiftPackageReference "Module/CommonPackage" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1112879A2CE4DAB600EA082F /* Products */;
@@ -324,6 +351,44 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		1172E9442D32BCA200021891 /* XCLocalSwiftPackageReference "Module/FavoritePackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Module/FavoritePackage;
+		};
+		1172E9472D32BCB900021891 /* XCLocalSwiftPackageReference "Module/CommonPackage" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Module/CommonPackage;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1172E92B2D32BA7F00021891 /* XCRemoteSwiftPackageReference "gamv-core-module" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ajiedrx/gamv-core-module";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1172E92C2D32BB7700021891 /* CorePackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1172E92B2D32BA7F00021891 /* XCRemoteSwiftPackageReference "gamv-core-module" */;
+			productName = CorePackage;
+		};
+		1172E9452D32BCA200021891 /* FavoritePackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FavoritePackage;
+		};
+		1172E9482D32BCB900021891 /* CommonPackage */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CommonPackage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 111287912CE4DAB600EA082F /* Project object */;
 }

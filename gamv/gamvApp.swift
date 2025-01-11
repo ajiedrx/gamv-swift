@@ -6,6 +6,9 @@
 //
 
 import SwiftUI
+import CorePackage
+import FavoritePackage
+import CommonPackage
 
 @main
 struct gamvApp: App {

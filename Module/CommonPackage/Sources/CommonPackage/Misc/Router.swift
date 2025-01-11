@@ -7,17 +7,22 @@
 
 import Foundation
 import SwiftUI
+import CorePackage
 
-final class Router: ObservableObject {
+public final class Router: ObservableObject {
+    public init(navPath: NavigationPath = NavigationPath()) {
+        self.navPath = navPath
+    }
+    
     public enum Destination: Hashable {
         case detail(game: GameListItemModel)
         case profile
         case favorite
     }
     
-    @Published var navPath = NavigationPath()
+    @Published public var navPath = NavigationPath()
     
-    func navigate(to destination: Destination) {
+    public func navigate(to destination: Destination) {
             navPath.append(destination)
         }
         
