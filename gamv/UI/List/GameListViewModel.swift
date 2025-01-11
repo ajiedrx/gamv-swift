@@ -30,7 +30,8 @@ class GameListViewModel: ObservableObject {
     func getTopRatedGames() {
         listViewState = .loading
         
-        getGameListUseCase.execute(page: 1, search: "")
+        getGameListUseCase
+            .execute(page: 1, search: "")
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
@@ -53,19 +54,23 @@ class GameListViewModel: ObservableObject {
     }
     
     func addFavorite(game: GameListItemModel) {
-        Task {
-            do {
-                try await addFavoriteGameUseCase.execute(game: game)
-            } catch {}
-        }
+        addFavoriteGameUseCase
+            .execute(game: game)
+            .sink(
+                receiveCompletion: { completion in },
+                receiveValue: { value in }
+            )
+            .store(in: &cancellables)
     }
     
     func removeFavorite(game: GameListItemModel) {
-        Task {
-            do {
-                try await removeFavoriteGameUseCase.execute(game: game)
-            } catch {}
-        }
+        removeFavoriteGameUseCase
+            .execute(game: game)
+            .sink(
+                receiveCompletion: { completion in },
+                receiveValue: { value in }
+            )
+            .store(in: &cancellables)
     }
     
     func onViewDisappear() {

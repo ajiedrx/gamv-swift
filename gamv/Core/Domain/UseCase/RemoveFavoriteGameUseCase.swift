@@ -5,6 +5,9 @@
 //  Created by Ajie DR on 05/01/25.
 //
 
+import Foundation
+import Combine
+
 class RemoveFavoriteGameUseCase {
     private let gameRepository: GameRepositoryProtocol
     
@@ -12,7 +15,7 @@ class RemoveFavoriteGameUseCase {
         self.gameRepository = gameRepository
     }
     
-    func execute(game: GameListItemModel) async throws {
-        try await gameRepository.deleteFavoriteGame(game: game)
+    func execute(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return gameRepository.deleteFavoriteGame(game: game)
     }
 }

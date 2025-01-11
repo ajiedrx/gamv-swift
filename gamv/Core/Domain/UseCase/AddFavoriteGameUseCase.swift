@@ -5,6 +5,9 @@
 //  Created by Ajie DR on 05/01/25.
 //
 
+import Foundation
+import Combine
+
 class AddFavoriteGameUseCase {
     private let gameRepository: GameRepositoryProtocol
     
@@ -12,7 +15,7 @@ class AddFavoriteGameUseCase {
         self.gameRepository = gameRepository
     }
     
-    func execute(game: GameListItemModel) async throws {
-        try await gameRepository.saveFavoriteGame(game: game)
+    func execute(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return gameRepository.saveFavoriteGame(game: game)
     }
 }

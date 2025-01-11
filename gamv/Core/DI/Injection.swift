@@ -14,7 +14,7 @@ final class Injection: NSObject {
         
         let favoriteGameModelContainer = try! ModelContainer(for: FavoriteGameEntity.self)
         
-        return GameRepository.getInstance(remote: remoteDS, local: LocalDataSource(modelContainer: favoriteGameModelContainer))
+        return GameRepository.getInstance(remote: remoteDS, local: FavoriteGameLocalDataSource(modelContainer: favoriteGameModelContainer))
     }
     
     func provideGetGameListUseCase() -> GetGameListUseCase {

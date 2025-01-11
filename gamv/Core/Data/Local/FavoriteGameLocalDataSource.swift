@@ -10,13 +10,13 @@ import Foundation
 import SwiftData
 
 @ModelActor
-actor LocalDataSource: Sendable {
+actor FavoriteGameLocalDataSource: Sendable {
     private var context: ModelContext { modelExecutor.modelContext }
 
     func fetchFavoriteGameEntity() -> AnyPublisher<
         [FavoriteGameEntity], CommonError
     > {
-        Future { promise in
+        return Future { promise in
             Task {
                 do {
                     let result = try self.context.fetch(
@@ -31,7 +31,7 @@ actor LocalDataSource: Sendable {
     }
 
     func fetchFavoriteGameEntityIds() -> AnyPublisher<[Int], CommonError> {
-        Future { promise in
+        return Future { promise in
             Task {
                 do {
                     var fetchDescriptor = FetchDescriptor<FavoriteGameEntity>()
@@ -50,38 +50,33 @@ actor LocalDataSource: Sendable {
         .eraseToAnyPublisher()
     }
 
-    func addFavoriteGameEntity(entity: FavoriteGameEntity) async throws {
-        Task {
-            self.context.insert(entity)
-            try self.context.save()
-        }
-    }
-
-    func removeFavoriteGameEntity(entity: FavoriteGameEntity) async throws {
-        Task {
-            let toBeDeletedGame = entity.id
-
-            try self.context.delete(
-                model: FavoriteGameEntity.self,
-                where: #Predicate<FavoriteGameEntity> { game in
-                    game.id == toBeDeletedGame
-                })
-            try self.context.save()
-        }
-    }
-
-    func isGameFavorite(gameId: Int) -> AnyPublisher<Bool, Never> {
-        Future { promise in
+    func addFavoriteGameEntity(entity: FavoriteGameEntity) -> AnyPublisher<Void, Never> {
+        return Future { promise in
             Task {
-                let fetchDescriptor = FetchDescriptor<FavoriteGameEntity>(
-                    predicate: #Predicate { game in game.id == gameId })
-                let data = try? self.context.fetch(fetchDescriptor)
-                let result = data != nil
-
-                promise(.success(result))
+                do {
+                    self.context.insert(entity)
+                    try self.context.save()
+                } catch {}
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    func removeFavoriteGameEntity(entity: FavoriteGameEntity) -> AnyPublisher<Void, Never> {
+        return Future { promise in
+            Task {
+                do {
+                    let toBeDeletedGame = entity.id
+                    
+                    try self.context.delete(
+                        model: FavoriteGameEntity.self,
+                        where: #Predicate<FavoriteGameEntity> { game in
+                            game.id == toBeDeletedGame
+                        })
+                    try self.context.save()
+                } catch {}
+            }
+        }.eraseToAnyPublisher()
     }
 }
 

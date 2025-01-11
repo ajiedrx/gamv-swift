@@ -10,23 +10,21 @@ import Foundation
 
 protocol GameRepositoryProtocol {
     func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError>
-
     func fetchFavoriteGamesFromLocal() -> AnyPublisher<[GameListItemModel], CommonError>
-
-    func saveFavoriteGame(game: GameListItemModel) async throws
-    func deleteFavoriteGame(game: GameListItemModel) async throws
+    func saveFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never>
+    func deleteFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never>
 }
 
 final class GameRepository: NSObject {
     fileprivate var remoteDS: RemoteDataSource
-    fileprivate var localDS: LocalDataSource
+    fileprivate var localDS: FavoriteGameLocalDataSource
 
-    private init(remoteDS: RemoteDataSource, localDS: LocalDataSource) {
+    private init(remoteDS: RemoteDataSource, localDS: FavoriteGameLocalDataSource) {
         self.remoteDS = remoteDS
         self.localDS = localDS
     }
 
-    static func getInstance(remote: RemoteDataSource, local: LocalDataSource)
+    static func getInstance(remote: RemoteDataSource, local: FavoriteGameLocalDataSource)
         -> GameRepository
     {
         return GameRepository(remoteDS: remote, localDS: local)
@@ -70,14 +68,13 @@ extension GameRepository: GameRepositoryProtocol {
                 results: gameListItems
             )
         }
-
         .eraseToAnyPublisher()
     }
 
     func fetchFavoriteGamesFromLocal() -> AnyPublisher<
         [GameListItemModel], CommonError
     > {
-        Future<[GameListItemModel], CommonError> { promise in
+        return Future<[GameListItemModel], CommonError> { promise in
             Task {
                 let favoriteGames = await self.localDS.fetchFavoriteGameEntity()
 
@@ -92,15 +89,36 @@ extension GameRepository: GameRepositoryProtocol {
                     }
                 ).cancel()
             }
-        }.eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
-    func saveFavoriteGame(game: GameListItemModel) async throws {
-        try await self.localDS.addFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
+    func saveFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return Future<Void, Never> { promise in
+            Task {
+                let result = await self.localDS.addFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
+                
+                result.sink(
+                    receiveCompletion: { completion in },
+                    receiveValue: { value in }
+                ).cancel()
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
-    func deleteFavoriteGame(game: GameListItemModel) async throws {
-        try await self.localDS.removeFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
+    func deleteFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return Future<Void, Never> { promise in
+            Task {
+                let result = await self.localDS.removeFavoriteGameEntity(entity: game.toFavoriteGameEntity(model: game))
+                
+                result.sink(
+                    receiveCompletion: { completion in },
+                    receiveValue: { value in }
+                ).cancel()
+            }
+        }
+        .eraseToAnyPublisher()
     }
 }
 
@@ -114,9 +132,13 @@ final class MockGameRepository: GameRepositoryProtocol {
         .eraseToAnyPublisher()
     }
 
-    func saveFavoriteGame(game: GameListItemModel) async throws {}
+    func saveFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return Future<Void, Never> { promise in }.eraseToAnyPublisher()
+    }
 
-    func deleteFavoriteGame(game: GameListItemModel) async throws {}
+    func deleteFavoriteGame(game: GameListItemModel) -> AnyPublisher<Void, Never> {
+        return Future<Void, Never> { promise in }.eraseToAnyPublisher()
+    }
 
     func getListOfGames(page: Int, search: String) -> AnyPublisher<GameListModel, CommonError> {
         if isSimulateError {

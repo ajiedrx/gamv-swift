@@ -31,7 +31,8 @@ class FavoriteGameViewModel: ObservableObject {
     func getFavoriteGames() {
         listViewState = .loading
         
-        getFavoriteGameListUseCase.execute()
+        getFavoriteGameListUseCase
+            .execute()
             .subscribe(on: DispatchQueue.global(qos: .background))
             .receive(on: DispatchQueue.main)
             .sink(
@@ -55,10 +56,12 @@ class FavoriteGameViewModel: ObservableObject {
         
         favoriteGames.remove(at: toBeRemovedIndex)
         
-        Task {
-            do {
-                try await removeFavoriteGameUseCase.execute(game: game)
-            } catch {}
-        }
+        removeFavoriteGameUseCase
+            .execute(game: game)
+            .sink(
+                receiveCompletion: { completion in },
+                receiveValue: { value in }
+            )
+            .store(in: &cancellables)
     }
 }
