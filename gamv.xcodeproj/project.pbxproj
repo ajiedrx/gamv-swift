@@ -14,6 +14,7 @@
 
 /* Begin PBXFileReference section */
 		111287992CE4DAB600EA082F /* gamv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gamv.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1161BA892D33474A00805002 /* gamv.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = gamv.xctestplan; sourceTree = "<group>"; };
 		1172E9422D32BC7300021891 /* CommonPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CommonPackage; path = Module/CommonPackage; sourceTree = "<group>"; };
 		1172E9432D32BC8500021891 /* FavoritePackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FavoritePackage; path = Module/FavoritePackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -43,6 +44,7 @@
 		111287902CE4DAB600EA082F = {
 			isa = PBXGroup;
 			children = (
+				1161BA892D33474A00805002 /* gamv.xctestplan */,
 				1112879B2CE4DAB600EA082F /* gamv */,
 				1172E9412D32BC7200021891 /* Frameworks */,
 				1112879A2CE4DAB600EA082F /* Products */,
