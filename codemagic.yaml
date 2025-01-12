@@ -1,6 +1,7 @@
 workflows:
   ios-project-debug: # workflow ID
     name: iOS debug # workflow name
+    working-directory: gamv
     environment:
       xcode: latest
       cocoapods: default
