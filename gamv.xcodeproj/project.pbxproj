@@ -12,9 +12,20 @@
 		1172E9492D32BCB900021891 /* CommonPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 1172E9482D32BCB900021891 /* CommonPackage */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1161BAD92D334AE600805002 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 111287912CE4DAB600EA082F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 111287982CE4DAB600EA082F;
+			remoteInfo = gamv;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		111287992CE4DAB600EA082F /* gamv.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gamv.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1161BA892D33474A00805002 /* gamv.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = gamv.xctestplan; sourceTree = "<group>"; };
+		1161BAD52D334AE600805002 /* gamvTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = gamvTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1172E9422D32BC7300021891 /* CommonPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = CommonPackage; path = Module/CommonPackage; sourceTree = "<group>"; };
 		1172E9432D32BC8500021891 /* FavoritePackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FavoritePackage; path = Module/FavoritePackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -23,6 +34,11 @@
 		1112879B2CE4DAB600EA082F /* gamv */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = gamv;
+			sourceTree = "<group>";
+		};
+		1161BAD62D334AE600805002 /* gamvTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = gamvTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -38,6 +54,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1161BAD22D334AE600805002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -46,6 +69,7 @@
 			children = (
 				1161BA892D33474A00805002 /* gamv.xctestplan */,
 				1112879B2CE4DAB600EA082F /* gamv */,
+				1161BAD62D334AE600805002 /* gamvTests */,
 				1172E9412D32BC7200021891 /* Frameworks */,
 				1112879A2CE4DAB600EA082F /* Products */,
 			);
@@ -55,6 +79,7 @@
 			isa = PBXGroup;
 			children = (
 				111287992CE4DAB600EA082F /* gamv.app */,
+				1161BAD52D334AE600805002 /* gamvTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,6 +121,29 @@
 			productReference = 111287992CE4DAB600EA082F /* gamv.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1161BAD42D334AE600805002 /* gamvTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1161BADB2D334AE600805002 /* Build configuration list for PBXNativeTarget "gamvTests" */;
+			buildPhases = (
+				1161BAD12D334AE600805002 /* Sources */,
+				1161BAD22D334AE600805002 /* Frameworks */,
+				1161BAD32D334AE600805002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1161BADA2D334AE600805002 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				1161BAD62D334AE600805002 /* gamvTests */,
+			);
+			name = gamvTests;
+			packageProductDependencies = (
+			);
+			productName = gamvTests;
+			productReference = 1161BAD52D334AE600805002 /* gamvTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -103,11 +151,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1610;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					111287982CE4DAB600EA082F = {
 						CreatedOnToolsVersion = 16.1;
+					};
+					1161BAD42D334AE600805002 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 111287982CE4DAB600EA082F;
 					};
 				};
 			};
@@ -131,12 +183,20 @@
 			projectRoot = "";
 			targets = (
 				111287982CE4DAB600EA082F /* gamv */,
+				1161BAD42D334AE600805002 /* gamvTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		111287972CE4DAB600EA082F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1161BAD32D334AE600805002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -153,7 +213,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1161BAD12D334AE600805002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1161BADA2D334AE600805002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 111287982CE4DAB600EA082F /* gamv */;
+			targetProxy = 1161BAD92D334AE600805002 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		111287A52CE4DAB700EA082F /* Debug */ = {
@@ -331,6 +406,42 @@
 			};
 			name = Release;
 		};
+		1161BADC2D334AE600805002 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.autoroll.sde.gamvTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gamv.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gamv";
+			};
+			name = Debug;
+		};
+		1161BADD2D334AE600805002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.autoroll.sde.gamvTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/gamv.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/gamv";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -348,6 +459,15 @@
 			buildConfigurations = (
 				111287A82CE4DAB700EA082F /* Debug */,
 				111287A92CE4DAB700EA082F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1161BADB2D334AE600805002 /* Build configuration list for PBXNativeTarget "gamvTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1161BADC2D334AE600805002 /* Debug */,
+				1161BADD2D334AE600805002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
