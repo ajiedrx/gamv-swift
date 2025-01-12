@@ -46,6 +46,17 @@
                ReferencedContainer = "container:gamv.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "1161BAE12D33532500805002"
+               BuildableName = "gamvUITests.xctest"
+               BlueprintName = "gamvUITests"
+               ReferencedContainer = "container:gamv.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
