@@ -12,7 +12,20 @@
 
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:gamv.xcodeproj",
+        "identifier" : "1161BAD42D334AE600805002",
+        "name" : "gamvTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:gamv.xcodeproj",
+        "identifier" : "1161BAE12D33532500805002",
+        "name" : "gamvUITests"
+      }
+    }
   ],
   "version" : 1
 }
